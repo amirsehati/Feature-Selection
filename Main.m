@@ -6,7 +6,7 @@ close all;
 teta=0.5;                % threshold for remove features(default value is 0.5)
 w=3;                     % minimum size of the reduced feature set in each cluster
 ptrain=0.7;              % Number of sample percentages for classification training    
-maxIteration=1;         % the maximum iteration
+maxIteration=10;         % the maximum iteration
 LP=0.2;                  % the number of edges to be added to the graph(percentage)
 
 LpName=["wCN","wRA","wJC","wPA","wAA"];       % name of link prediction method
