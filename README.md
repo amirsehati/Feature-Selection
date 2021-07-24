@@ -1,4 +1,4 @@
-# Graph-based feature selection improvement using link prediction and hole structures
+# Feature Selection
 
 Proposal method coding with matlab R2019a. 
 
