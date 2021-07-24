@@ -7,7 +7,7 @@ This package write on matlab R2019a x64 under windows 10 x64.
 Installation
 requires matlab R2019a for run.
 
-Main.m is main file for runing. so we need config parameters to obtain results.
+Main.m is main file for runing. so we need config parameters to obtain results
 
 Parameter setting
 teta=0.5                threshold for remove features(default value is 0.5)
@@ -25,3 +25,4 @@ prePath='Dataset\'          dataset file path
 
 X0       Features
 Y0       Labels(targets)
+
