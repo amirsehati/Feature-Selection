@@ -4,15 +4,15 @@ close all;
 
 %% Parameter setting
 teta=0.5;                % threshold for remove features(default value is 0.5)
-w=3;                     % minimum size of the reduced feature set in each cluster
+w=7;                     % minimum size of the reduced feature set in each cluster
 ptrain=0.7;              % Number of sample percentages for classification training    
-maxIteration=10;         % the maximum iteration
+maxIteration=5;          % the maximum iteration
 LP=0.2;                  % the number of edges to be added to the graph(percentage)
 
 LpName=["wCN","wRA","wJC","wPA","wAA"];       % name of link prediction method
 nLPMethod=length(LpName);                     % number of link prediction methods
 %% Loading Dataset
-nameDS = 'wine';            % dataset file name    
+nameDS = 'Orlraws10p';            % dataset file name    
 Ext='.mat';                 % dataset file extension
 prePath='Dataset\';         % dataset file path
 
@@ -41,10 +41,11 @@ Xn=NormalizeData(X,method2);
 % nCOM:         communities number of network graph.
 % nFeatures:    Obtained features.    
 % time:         elapsed time for a iteration. 
-% svm:          Accuracy obtained using the svm classifier.
-% knn:          Accuracy obtained using the knn classifier.
-% nb:           Accuracy obtained using the nb classifier.
-% dt:           Accuracy obtained using the dt classifier.
+% svm:          Accuracy obtained using the SVM classifier.
+% knn:          Accuracy obtained using the KNN classifier.
+% nb:           Accuracy obtained using the NB classifier.
+% dt:           Accuracy obtained using the DT classifier.
+% gbm:          Accuracy obtained using the Gradient Boosting Machine classifier.
 
 type1.nCOM=0;
 type1.nFeatures=0;
@@ -53,6 +54,8 @@ type1.svm=0;
 type1.knn=0;
 type1.nb=0;
 type1.dt=0;
+type1.gbm=0;
+
 res1=repmat(type1,maxIteration,1);
 res2=repmat(type1,maxIteration,1);
 
@@ -63,6 +66,7 @@ type2.svm=zeros(1,nLPMethod);
 type2.knn=zeros(1,nLPMethod);
 type2.nb=zeros(1,nLPMethod);
 type2.dt=zeros(1,nLPMethod);
+type2.gbm=zeros(1,nLPMethod);
 res3=repmat(type2,maxIteration,1);
 
 [nSample,nFeature]=size(Xn);
@@ -88,6 +92,8 @@ for it=1:maxIteration
     res1(it).knn=z(2);
     res1(it).nb=z(3);
     res1(it).dt=z(4);
+    res1(it).gbm=z(5);
+
     % End of GCNC method    
     
     % Method 2:   CDGAFS method
@@ -103,8 +109,9 @@ for it=1:maxIteration
     res2(it).knn=z(2);
     res2(it).nb=z(3);
     res2(it).dt=z(4);
+    res2(it).gbm=z(5);
     % End of CDGAFS method    
-    
+
     % Method 3:  MyMethod using Link prediction and EBurt methods
     [FSel3,nCOMLP,timeLP]=Algorithm_MyMethodEBurt(Xn,Y,w,teta,LP);
     for LPMethod=1:nLPMethod
@@ -119,8 +126,16 @@ for it=1:maxIteration
         res3(it).knn(LPMethod)=z(2);
         res3(it).nb(LPMethod)=z(3);
         res3(it).dt(LPMethod)=z(4);
+        res3(it).gbm(LPMethod)=z(5);
+
     end
     % End of MyMethod Eburt
+
+    
+    % % Method 4: ...    
+    % tic
+
+    % % End 
     
 end
 
@@ -133,6 +148,7 @@ accSVM1=0;
 accKNN1=0;
 accDT1=0;
 accNB1=0;
+accGB1=0;
 
 for i=1:maxIteration
     A_nCOM1=A_nCOM1+res1(i).nCOM;
@@ -142,6 +158,7 @@ for i=1:maxIteration
     accKNN1=accKNN1+res1(i).knn;
     accNB1=accNB1+res1(i).nb;
     accDT1=accDT1+res1(i).dt;
+    accGB1=accGB1+res1(i).gbm;
 end
 
 A_nCOM1=A_nCOM1/maxIteration;
@@ -151,6 +168,7 @@ accSVM1=accSVM1/maxIteration;
 accKNN1=accKNN1/maxIteration;
 accDT1=accDT1/maxIteration;
 accNB1=accNB1/maxIteration;
+accGB1=accGB1/maxIteration;
 
 A_nCOM2=0;
 A_nF2=0;
@@ -159,6 +177,7 @@ accSVM2=0;
 accKNN2=0;
 accDT2=0;
 accNB2=0;
+accGB2=0;
 
 for i=1:maxIteration
     A_nCOM2=A_nCOM2+res2(i).nCOM;
@@ -168,6 +187,7 @@ for i=1:maxIteration
     accKNN2=accKNN2+res2(i).knn;
     accNB2=accNB2+res2(i).nb;
     accDT2=accDT2+res2(i).dt;
+    accGB2=accGB2+res2(i).gbm;
 end
 
 A_nCOM2=A_nCOM2/maxIteration;
@@ -177,6 +197,7 @@ accSVM2=accSVM2/maxIteration;
 accKNN2=accKNN2/maxIteration;
 accDT2=accDT2/maxIteration;
 accNB2=accNB2/maxIteration;
+accGB2=accGB2/maxIteration;
 
 A_nCOM3=zeros(1,nLPMethod);
 A_nF3=zeros(1,nLPMethod);
@@ -185,6 +206,7 @@ accSVM3=zeros(1,nLPMethod);
 accKNN3=zeros(1,nLPMethod);
 accDT3=zeros(1,nLPMethod);
 accNB3=zeros(1,nLPMethod);
+accGB3=zeros(1,nLPMethod);
 
 for i=1:nLPMethod    
     for j=1:maxIteration
@@ -195,6 +217,7 @@ for i=1:nLPMethod
         accKNN3(i)=accKNN3(i)+res3(j).knn(i);
         accDT3(i)=accDT3(i)+res3(j).dt(i);
         accNB3(i)=accNB3(i)+res3(j).nb(i);
+        accGB3(i)=accGB3(i)+res3(j).gbm(i);
     end
     
     A_nCOM3(i)=A_nCOM3(i)/maxIteration;
@@ -204,6 +227,7 @@ for i=1:nLPMethod
     accKNN3(i)=accKNN3(i)/maxIteration;
     accDT3(i)=accDT3(i)/maxIteration;
     accNB3(i)=accNB3(i)/maxIteration;
+    accGB3(i)=accGB3(i)/maxIteration;
 end
 
 % show results
@@ -212,10 +236,11 @@ end
 % nC:           Obtained clusters (output parameter) 
 % nF:           Obtained features (output parameter)   
 % time:         elapsed time for a iteration (output parameter)  
-% svm:          Accuracy obtained using the svm classifier (output parameter) 
-% knn:          Accuracy obtained using the knn classifier (output parameter) 
-% nb:           Accuracy obtained using the nb classifier  (output parameter) 
-% dt:           Accuracy obtained using the dt classifier  (output parameter) 
+% svm:          Accuracy obtained using the SVM classifier (output parameter) 
+% knn:          Accuracy obtained using the KNN classifier (output parameter) 
+% nb:           Accuracy obtained using the NB classifier  (output parameter) 
+% dt:           Accuracy obtained using the DT classifier  (output parameter) 
+% gbm:          Accuracy obtained using the GBM classifier  (output parameter) 
 
 % myPro_wCN:    my proposal method using wCN method  
 % myPro_wRA:    my proposal method using wRA method
@@ -223,11 +248,15 @@ end
 % myPro_wPA:    my proposal method using wPA method
 % myPro_wAA:    my proposal method using wAA method
 
+play_sound();
+
 disp(mfilename);
 fprintf('Dataset: "%s"\n',nameDS);
-fprintf('Method,w,nC,nF,SVM,KNN,NB,DT,Time(s)\n');
-fprintf('GCNC,%d,%d,%d,%.2f,%.2f,%.2f,%.2f,%.4f\n',w,A_nCOM1,A_nF1,accSVM1,accKNN1,accNB1,accDT1,A_time1);
-fprintf('CDGAFS,%d,%d,%d,%.2f,%.2f,%.2f,%.2f,%.4f\n',w,A_nCOM2,A_nF2,accSVM2,accKNN2,accNB2,accDT2,A_time2);
+fprintf('Method,w,nC,nF,SVM,KNN,NB,DT,GBM,Time(s)\n');
+fprintf('GCNC,%d,%d,%d,%.2f,%.2f,%.2f,%.2f,%.2f,%.4f\n',w,A_nCOM1,A_nF1,accSVM1,accKNN1,accNB1,accDT1,accGB1,A_time1);
+fprintf('CDGAFS,%d,%d,%d,%.2f,%.2f,%.2f,%.2f,%.2f,%.4f\n',w,A_nCOM2,A_nF2,accSVM2,accKNN2,accNB2,accDT2,accGB2,A_time2);
+
 for i=1:nLPMethod
-    fprintf('myPro_%s,%d,%d,%d,%.2f,%.2f,%.2f,%.2f,%.4f,LP: %.1f%%+\n',LpName(i),w,A_nCOM3(i),A_nF3(i),accSVM3(i),accKNN3(i),accNB3(i),accDT3(i),A_time3(i),LP*100);
+    fprintf('myPro_%s,%d,%d,%d,%.2f,%.2f,%.2f,%.2f,%.2f,%.4f,LP: %.1f%%+\n',LpName(i),w,A_nCOM3(i),A_nF3(i),accSVM3(i),accKNN3(i),accNB3(i),accDT3(i),accGB3(i),A_time3(i),LP*100);
 end
+
